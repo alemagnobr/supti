@@ -1,0 +1,1 @@
+Coloque seus arquivos .bat aqui e use a URL /downloads/nome-do-arquivo.bat na aba de Ferramentas.

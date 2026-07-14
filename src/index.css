@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+.quill-content {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.quill-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
+.quill-content ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+}
+
+.quill-content p {
+  margin-bottom: 0.5rem;
+}
+
+.quill-container .ql-container {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  min-height: 120px;
+}
