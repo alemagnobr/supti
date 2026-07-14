@@ -49,10 +49,12 @@ export function SettingsPanel({ appSettings, onUpdateSettings }: SettingsPanelPr
 
   const [newProcedureName, setNewProcedureName] = useState('');
   const [newProcedureDesc, setNewProcedureDesc] = useState('');
+  const [newProcedureColor, setNewProcedureColor] = useState('#3b82f6');
 
   const [editingProcedureId, setEditingProcedureId] = useState<string | null>(null);
   const [editingProcedureName, setEditingProcedureName] = useState('');
   const [editingProcedureDesc, setEditingProcedureDesc] = useState('');
+  const [editingProcedureColor, setEditingProcedureColor] = useState('#3b82f6');
 
   const [newVerificationName, setNewVerificationName] = useState('');
   const [newVerificationDesc, setNewVerificationDesc] = useState('');
@@ -184,12 +186,14 @@ export function SettingsPanel({ appSettings, onUpdateSettings }: SettingsPanelPr
           {
             id: Date.now().toString(),
             name: newProcedureName.trim(),
-            description: newProcedureDesc.trim()
+            description: newProcedureDesc.trim(),
+            color: newProcedureColor
           }
         ]
       });
       setNewProcedureName('');
       setNewProcedureDesc('');
+      setNewProcedureColor('#3b82f6');
     }
   };
 
@@ -200,16 +204,18 @@ export function SettingsPanel({ appSettings, onUpdateSettings }: SettingsPanelPr
     });
   };
 
-  const startEditingProcedure = (proc: { id: string, name: string, description: string }) => {
+  const startEditingProcedure = (proc: { id: string, name: string, description: string, color?: string }) => {
     setEditingProcedureId(proc.id);
     setEditingProcedureName(proc.name);
     setEditingProcedureDesc(proc.description);
+    setEditingProcedureColor(proc.color || '#3b82f6');
   };
 
   const cancelEditingProcedure = () => {
     setEditingProcedureId(null);
     setEditingProcedureName('');
     setEditingProcedureDesc('');
+    setEditingProcedureColor('#3b82f6');
   };
 
   const saveEditedProcedure = () => {
@@ -218,7 +224,7 @@ export function SettingsPanel({ appSettings, onUpdateSettings }: SettingsPanelPr
         ...appSettings,
         procedures: appSettings.procedures.map(p => 
           p.id === editingProcedureId 
-            ? { ...p, name: editingProcedureName.trim(), description: editingProcedureDesc.trim() }
+            ? { ...p, name: editingProcedureName.trim(), description: editingProcedureDesc.trim(), color: editingProcedureColor }
             : p
         )
       });
@@ -836,6 +842,15 @@ export function SettingsPanel({ appSettings, onUpdateSettings }: SettingsPanelPr
               placeholder="Descrição do que este comando faz..."
               className="flex-1 px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            <div className="relative group">
+              <input
+                type="color"
+                value={newProcedureColor}
+                onChange={(e) => setNewProcedureColor(e.target.value)}
+                className="w-10 h-10 p-0.5 border border-slate-200 rounded-lg cursor-pointer"
+                title="Cor do Procedimento"
+              />
+            </div>
             <button
               onClick={handleAddProcedure}
               disabled={!newProcedureName.trim() || !newProcedureDesc.trim()}
@@ -864,6 +879,7 @@ export function SettingsPanel({ appSettings, onUpdateSettings }: SettingsPanelPr
                   ? "opacity-40 border-dashed border-blue-400 bg-blue-50/50 scale-[0.98]" 
                   : ""
               }`}
+              style={editingProcedureId !== proc.id && proc.color ? { borderLeftWidth: '4px', borderLeftColor: proc.color } : {}}
             >
               {editingProcedureId === proc.id ? (
                 <div className="w-full flex flex-col gap-2">
@@ -880,6 +896,13 @@ export function SettingsPanel({ appSettings, onUpdateSettings }: SettingsPanelPr
                       onChange={(e) => setEditingProcedureDesc(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && saveEditedProcedure()}
                       className="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input
+                      type="color"
+                      value={editingProcedureColor}
+                      onChange={(e) => setEditingProcedureColor(e.target.value)}
+                      className="w-8 h-8 p-0.5 border border-slate-200 rounded cursor-pointer self-center"
+                      title="Cor do Procedimento"
                     />
                     <button 
                       onClick={saveEditedProcedure}

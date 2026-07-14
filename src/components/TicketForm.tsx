@@ -1076,8 +1076,15 @@ export function TicketForm({ ticket, onUpdate, onFinish, onDuplicate, onUpdateSe
                           </div>
                         )}
                       </div>
-                      <label htmlFor={`proc-${proc.id}`} className="text-sm text-slate-700 font-medium cursor-pointer flex-1 truncate" title={proc.name}>
-                        {proc.name}
+                      <label htmlFor={`proc-${proc.id}`} className="text-sm text-slate-700 font-medium cursor-pointer flex-1 truncate flex items-center gap-1.5" title={proc.name}>
+                        {proc.color && (
+                          <span 
+                            className="w-2.5 h-2.5 rounded-full shrink-0" 
+                            style={{ backgroundColor: proc.color }}
+                            title={`Cor: ${proc.color}`}
+                          />
+                        )}
+                        <span className="truncate">{proc.name}</span>
                       </label>
                       
                       <div className="flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity">

@@ -585,6 +585,13 @@ export function SmartSuggestions({ description, appSettings, finishedTickets, ti
                       <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 truncate">
                         {item.subtitle.split(' • ')[0]}
                       </span>
+                      {item.type === 'procedure' && (item.original as any).color && (
+                        <span 
+                          className="w-1.5 h-1.5 rounded-full shrink-0" 
+                          style={{ backgroundColor: (item.original as any).color }}
+                          title={`Cor: ${(item.original as any).color}`}
+                        />
+                      )}
                       {(isAssociatedFaq || isSelectedProc) && (
                         <span className="text-[8px] bg-emerald-100 text-emerald-800 font-extrabold px-1 rounded-full uppercase shrink-0">
                           Selecionado

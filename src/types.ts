@@ -52,6 +52,7 @@ export interface Procedure {
   description: string;
   steps?: string;
   category?: string;
+  color?: string;
 }
 
 export interface Verification {
