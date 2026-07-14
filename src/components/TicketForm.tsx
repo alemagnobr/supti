@@ -1,3 +1,14 @@
+/**
+ * TicketForm Component
+ * 
+ * Provides ticket editing, timer tracking, AI-powered summary structuring,
+ * predefined FAQ/Solution suggestions, and interactive procedure/verification checklists.
+ * 
+ * Features:
+ * - Drag and Drop (using native HTML5 Drag & Drop) to reorder procedures and verifications.
+ * - Live countdown timer and SLA status display.
+ * - Auto-saving to Firestore and integration with Gemini / OpenRouter API.
+ */
 import { Play, Pause, Copy, Trash2, Sparkles, Search, Save, Loader2, X, Edit3, Info, Plus, Check, AlertTriangle, ArrowLeft, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import { ActiveTicket, AppSettings, Ticket } from '@/types';
