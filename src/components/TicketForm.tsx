@@ -415,12 +415,17 @@ export function TicketForm({ ticket, onUpdate, onFinish, onDuplicate, onUpdateSe
                     <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Celular</span>
                     <span className="text-sm font-medium text-slate-800">{ticket.mobile || <span className="text-slate-400 italic">Não informado</span>}</span>
                   </div>
+                  <div>
+                    <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email</span>
+                    <span className="text-sm font-medium text-slate-800">{ticket.clientEmail || <span className="text-slate-400 italic">Não informado</span>}</span>
+                  </div>
                   <div className="pt-2 border-t border-slate-200">
-                    <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Endereço Lógico (Micro / Impressora / Monitor)</span>
+                    <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Endereço Lógico</span>
                     <div className="text-sm font-medium text-slate-800 flex flex-col gap-1 mt-1">
                       <span>Micro: {ticket.microLogicalAddress || '-'}</span>
                       <span>Imp: {ticket.printerLogicalAddress || '-'}</span>
                       <span>Mon: {ticket.monitorLogicalAddress || '-'}</span>
+                      <span>Outros: {ticket.otherLogicalAddress || '-'}</span>
                     </div>
                   </div>
                 </div>
@@ -701,6 +706,18 @@ export function TicketForm({ ticket, onUpdate, onFinish, onDuplicate, onUpdateSe
             />
           </div>
           <div>
+            <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Email</label>
+            <input 
+              type="email" 
+              value={ticket.clientEmail || ''}
+              onChange={(e) => handleChange('clientEmail', e.target.value)}
+              className="w-full p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 gap-4">
+          <div>
             <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">End. lógico micro</label>
             <input 
               type="text" 
@@ -709,9 +726,6 @@ export function TicketForm({ ticket, onUpdate, onFinish, onDuplicate, onUpdateSe
               className="w-full p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
             />
           </div>
-        </div>
-
-        <div className="grid grid-cols-4 gap-4">
           <div>
             <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">End. lógico impressora</label>
             <input 
@@ -730,7 +744,19 @@ export function TicketForm({ ticket, onUpdate, onFinish, onDuplicate, onUpdateSe
               className="w-full p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
             />
           </div>
-          <div className="col-span-2">
+          <div>
+            <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">End. lógico (Outros)</label>
+            <input 
+              type="text" 
+              value={ticket.otherLogicalAddress || ''}
+              onChange={(e) => handleChange('otherLogicalAddress', e.target.value)}
+              className="w-full p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div>
             <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Categoria</label>
             {isAddingCategory ? (
               <div className="flex gap-2">
@@ -785,10 +811,7 @@ export function TicketForm({ ticket, onUpdate, onFinish, onDuplicate, onUpdateSe
               </div>
             )}
           </div>
-        </div>
-
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="col-span-4">
+          <div>
             <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Associar FAQ (Opcional)</label>
             <select
               value={ticket.associatedFaqId || ''}

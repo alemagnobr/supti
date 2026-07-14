@@ -7,9 +7,11 @@ export interface Ticket {
   networkLogin: string;
   extension: string; // Ramal
   mobile: string;
+  clientEmail?: string;
   microLogicalAddress: string;
   printerLogicalAddress: string;
   monitorLogicalAddress: string;
+  otherLogicalAddress?: string;
   createdAt: string; // ISO date string
   finishedAt?: string; // ISO date string
   durationSeconds: number; // For active tracking and final reporting

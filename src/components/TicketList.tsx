@@ -78,6 +78,8 @@ export function TicketList({ tickets, appSettings, onDelete, onEdit, onUpdate }:
           ${ticket.networkLogin || ''}
           ${ticket.extension || ''}
           ${ticket.mobile || ''}
+          ${ticket.clientEmail || ''}
+          ${ticket.otherLogicalAddress || ''}
         `.toLowerCase();
         
         if (!content.includes(term)) return false;
@@ -569,9 +571,11 @@ export function TicketList({ tickets, appSettings, onDelete, onEdit, onUpdate }:
                   <span>ID: {ticket.id}</span>
                   {ticket.networkLogin && <span>• Login: {ticket.networkLogin}</span>}
                   {ticket.extension && <span>• Ramal: {ticket.extension}</span>}
+                  {ticket.clientEmail && <span>• Email: {ticket.clientEmail}</span>}
                   {ticket.microLogicalAddress && <span>• Micro: {ticket.microLogicalAddress}</span>}
                   {ticket.printerLogicalAddress && <span>• Impressora: {ticket.printerLogicalAddress}</span>}
                   {ticket.monitorLogicalAddress && <span>• Monitor: {ticket.monitorLogicalAddress}</span>}
+                  {ticket.otherLogicalAddress && <span>• Outros: {ticket.otherLogicalAddress}</span>}
                   <span>• Finalizado: {ticket.finishedAt ? formatDateStr(ticket.finishedAt) : '-'}</span>
                 </div>
               </div>
@@ -736,11 +740,15 @@ export function TicketList({ tickets, appSettings, onDelete, onEdit, onUpdate }:
                   <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Celular</span>
                   <span className="text-sm font-bold text-slate-800">{viewingTicket.mobile || '-'}</span>
                 </div>
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Email</span>
+                  <span className="text-sm font-bold text-slate-800">{viewingTicket.clientEmail || '-'}</span>
+                </div>
               </div>
 
               <div>
                 <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">Endereços Lógicos</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-4">
                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                     <span className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Micro</span>
                     <span className="text-sm font-medium text-slate-700">{viewingTicket.microLogicalAddress || '-'}</span>
@@ -752,6 +760,10 @@ export function TicketList({ tickets, appSettings, onDelete, onEdit, onUpdate }:
                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                     <span className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Monitor</span>
                     <span className="text-sm font-medium text-slate-700">{viewingTicket.monitorLogicalAddress || '-'}</span>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <span className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Outros</span>
+                    <span className="text-sm font-medium text-slate-700">{viewingTicket.otherLogicalAddress || '-'}</span>
                   </div>
                 </div>
               </div>
