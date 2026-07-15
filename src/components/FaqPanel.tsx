@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, Edit2, Copy, ChevronDown, ChevronRight, X, Check } from 'lucide-react';
+import { Plus, Trash2, Edit2, Copy, ChevronDown, ChevronRight, X, Check, Sparkles } from 'lucide-react';
 import { AppSettings, FAQ, Ticket } from '@/types';
 import { cn } from '@/lib/utils';
 import ReactQuill from 'react-quill-new';
@@ -59,6 +59,51 @@ export function FaqPanel({ appSettings, onUpdateSettings, tickets = [] }: FaqPan
 
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+  const [aiSearchQuery, setAiSearchQuery] = useState('');
+  const [isSearchingAi, setIsSearchingAi] = useState(false);
+  const [aiMatchedFaq, setAiMatchedFaq] = useState<FAQ | null>(null);
+  const [aiSearchPerformed, setAiSearchPerformed] = useState(false);
+
+  const handleAiSearch = async () => {
+    if (!aiSearchQuery.trim()) return;
+    setIsSearchingAi(true);
+    setAiSearchPerformed(true);
+    setAiMatchedFaq(null);
+
+    try {
+      const response = await fetch('/api/search-faq-ai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: aiSearchQuery,
+          faqs: appSettings.faqs || [],
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.matchedFaqId) {
+          const matched = (appSettings.faqs || []).find(f => f.id === data.matchedFaqId);
+          setAiMatchedFaq(matched || null);
+        } else {
+          setAiMatchedFaq(null);
+        }
+      }
+    } catch (error) {
+      console.error('Error searching FAQ with AI:', error);
+    } finally {
+      setIsSearchingAi(false);
+    }
+  };
+
+  const handleClearAiSearch = () => {
+    setAiSearchQuery('');
+    setAiMatchedFaq(null);
+    setAiSearchPerformed(false);
+  };
 
   const handleOpenForm = (faq?: FAQ) => {
     if (faq) {
@@ -310,6 +355,94 @@ export function FaqPanel({ appSettings, onUpdateSettings, tickets = [] }: FaqPan
           <Plus className="h-4 w-4" />
           Nova FAQ
         </button>
+      </div>
+
+      {/* Busca com IA */}
+      <div className="p-5 bg-gradient-to-r from-blue-50 via-indigo-50 to-white border border-blue-200 rounded-xl shadow-xs space-y-4 mb-6">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-blue-600 animate-pulse" />
+          <h3 className="font-bold text-slate-800 text-sm md:text-base">Busca Inteligente por IA (Encontrar FAQ Ideal)</h3>
+        </div>
+        <p className="text-xs text-slate-500">
+          Cole a demanda do chamado ou as palavras-chave para que o Gemini analise e encontre a FAQ exata para o atendimento.
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Ex: Cliente reclama que não consegue acessar a VPN, dá erro de credencial inválida..."
+            value={aiSearchQuery}
+            onChange={(e) => setAiSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAiSearch()}
+            className="flex-1 p-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
+          />
+          <button
+            onClick={handleAiSearch}
+            disabled={isSearchingAi || !aiSearchQuery.trim()}
+            className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            {isSearchingAi ? (
+              <>
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
+                <span>Buscando...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 shrink-0" />
+                <span>Buscar com IA</span>
+              </>
+            )}
+          </button>
+          {aiSearchPerformed && (
+            <button
+              onClick={handleClearAiSearch}
+              className="p-3 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg text-sm font-bold transition-colors"
+              title="Limpar Busca"
+            >
+              <X className="h-4 w-4 shrink-0" />
+            </button>
+          )}
+        </div>
+
+        {/* Resultados da Busca por IA */}
+        {aiSearchPerformed && (
+          <div className="mt-4 pt-4 border-t border-slate-200 space-y-3">
+            {isSearchingAi ? (
+              <div className="flex flex-col items-center justify-center py-6 space-y-2">
+                <span className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-slate-500 font-medium animate-pulse">A Inteligência Artificial está analisando as FAQs...</p>
+              </div>
+            ) : aiMatchedFaq ? (
+              <div className="space-y-4">
+                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-emerald-800 text-sm font-semibold">
+                    <Check className="h-5 w-5 text-emerald-600 shrink-0" />
+                    <span>FAQ Encontrada pela IA!</span>
+                  </div>
+                  {aiMatchedFaq.originalLink && (
+                    <a
+                      href={aiMatchedFaq.originalLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition-colors shadow-xs shrink-0"
+                    >
+                      Acessar Link Externo
+                    </a>
+                  )}
+                </div>
+
+                {/* Abaixo a FAQ aqui do App */}
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Visualização da FAQ no App:</p>
+                  {renderFaqCard(aiMatchedFaq, (appSettings.faqs || []).indexOf(aiMatchedFaq), true)}
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 bg-amber-50 border border-amber-100 rounded-lg text-center text-sm text-amber-800">
+                A IA não encontrou nenhuma FAQ diretamente correspondente à sua demanda na base de conhecimento atual.
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mb-6">

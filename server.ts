@@ -6,7 +6,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ 
+  apiKey: process.env.GEMINI_API_KEY,
+  httpOptions: {
+    headers: {
+      'User-Agent': 'aistudio-build',
+    }
+  }
+});
 
 async function startServer() {
   const app = express();
@@ -164,6 +171,77 @@ Retorne APENAS um objeto JSON no seguinte formato, listando os IDs dos itens mai
     } catch (error) {
       console.error('Error in /api/search-solutions:', error);
       res.status(500).json({ error: 'Failed to search solutions' });
+    }
+  });
+
+  // Dedicated API route to search for the most correct FAQ using AI
+  app.post('/api/search-faq-ai', async (req, res) => {
+    try {
+      const { query, faqs } = req.body;
+
+      if (!query) {
+        return res.status(400).json({ error: 'Query is required' });
+      }
+
+      if (!faqs || faqs.length === 0) {
+        return res.json({ matchedFaqId: null });
+      }
+
+      const prompt = `Você é um assistente de suporte de TI de alto nível.
+Sua tarefa é analisar a demanda ou palavras-chave inseridas pelo usuário e identificar a FAQ mais correta e relevante da lista de FAQs fornecida.
+
+DEMANDA DO USUÁRIO:
+"${query}"
+
+LISTA DE FAQS DISPONÍVEIS:
+${JSON.stringify(faqs.map((f: any) => ({
+  id: f.id,
+  faqNumber: f.faqNumber,
+  name: f.name,
+  category: f.category,
+  subject: f.subject,
+  system: f.system,
+  technicalInfo: f.technicalInfo,
+  type: f.type
+})))}
+
+Você deve selecionar apenas a FAQ que corresponda diretamente ou seja a mais relevante para a demanda do usuário.
+Se nenhuma FAQ for relevante ou se a lista estiver vazia, retorne null para o id.
+
+Retorne APENAS um objeto JSON no seguinte formato:
+{
+  "matchedFaqId": "id_da_faq_selecionada_ou_null"
+}`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "object",
+            properties: {
+              matchedFaqId: { type: "string", nullable: true }
+            }
+          }
+        }
+      });
+
+      const text = response.text;
+      let matchedFaqId = null;
+      if (text) {
+        try {
+          const parsed = JSON.parse(text);
+          matchedFaqId = parsed.matchedFaqId;
+        } catch (e) {
+          console.error('Failed to parse matchedFaqId JSON:', e);
+        }
+      }
+
+      res.json({ matchedFaqId });
+    } catch (error) {
+      console.error('Error in /api/search-faq-ai:', error);
+      res.status(500).json({ error: 'Failed to search FAQ with AI' });
     }
   });
 
