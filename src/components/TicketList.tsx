@@ -1,5 +1,5 @@
 import { Eye, Edit, Trash2, Search as SearchIcon, Copy, Check } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { isToday, isThisWeek, isThisMonth, isThisYear } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Ticket, AppSettings } from '@/types';
@@ -29,7 +29,14 @@ function formatDateStr(dateString: string) {
 }
 
 export function TicketList({ tickets, appSettings, onDelete, onEdit, onUpdate }: TicketListProps) {
-  const [filter, setFilter] = useState('Semana');
+  const defaultMap: Record<string, string> = {
+    'day': 'Dia',
+    'week': 'Semana',
+    'month': 'Mês',
+    'year': 'Ano',
+    'all': 'Todos'
+  };
+  const [filter, setFilter] = useState(appSettings.defaultSlaTimeFilter ? defaultMap[appSettings.defaultSlaTimeFilter] : 'Todos');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [viewingTicket, setViewingTicket] = useState<Ticket | null>(null);
@@ -40,6 +47,12 @@ export function TicketList({ tickets, appSettings, onDelete, onEdit, onUpdate }:
   const [copiedResult, setCopiedResult] = useState(false);
   const [slaFilter, setSlaFilter] = useState<'10' | '15' | '20' | null>(null);
   const [chartTab, setChartTab] = useState<'sla' | 'distribution'>('sla');
+
+  useEffect(() => {
+    if (appSettings.defaultSlaTimeFilter) {
+      setFilter(defaultMap[appSettings.defaultSlaTimeFilter] || 'Todos');
+    }
+  }, [appSettings.defaultSlaTimeFilter]);
 
   const handleCopyResult = () => {
     if (viewingTicket?.structuredResult) {

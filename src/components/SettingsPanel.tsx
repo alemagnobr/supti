@@ -501,6 +501,22 @@ export function SettingsPanel({ appSettings, onUpdateSettings }: SettingsPanelPr
         </p>
 
         <div className="space-y-6">
+          <div className="flex flex-col gap-2 p-4 bg-slate-50 border border-slate-100 rounded-lg">
+            <span className="font-bold text-slate-700">Visualização Padrão</span>
+            <span className="text-xs text-slate-500 mb-2">Defina o período padrão ao abrir o dashboard de SLAs.</span>
+            <select
+              value={appSettings.defaultSlaTimeFilter || 'all'}
+              onChange={(e) => onUpdateSettings({ ...appSettings, defaultSlaTimeFilter: e.target.value as 'day' | 'week' | 'month' | 'year' | 'all' })}
+              className="w-full md:w-64 bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-3 py-2 outline-none font-medium"
+            >
+              <option value="day">Dia (Mostra o dia atual)</option>
+              <option value="week">Semana</option>
+              <option value="month">Mês</option>
+              <option value="year">Ano</option>
+              <option value="all">Todos</option>
+            </select>
+          </div>
+
           <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-lg">
             <div>
               <div className="flex items-center gap-2 mb-1">

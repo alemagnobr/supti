@@ -13,7 +13,14 @@ interface SLADashboardProps {
 type TimeFilter = 'day' | 'week' | 'month' | 'year' | 'all';
 
 export function SLADashboard({ tickets, appSettings }: SLADashboardProps) {
-  const [timeFilter, setTimeFilter] = useState<TimeFilter>('week');
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>(appSettings.defaultSlaTimeFilter || 'all');
+  const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
+
+  React.useEffect(() => {
+    if (appSettings.defaultSlaTimeFilter) {
+      setTimeFilter(appSettings.defaultSlaTimeFilter);
+    }
+  }, [appSettings.defaultSlaTimeFilter]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [monthsComparison, setMonthsComparison] = useState<number>(6);
 
@@ -25,7 +32,7 @@ export function SLADashboard({ tickets, appSettings }: SLADashboardProps) {
     return finishedTickets.filter(t => {
       const dateStr = t.finishedAt || t.createdAt;
       const date = new Date(dateStr);
-      if (timeFilter === 'day' && !isToday(date)) return false;
+      if (timeFilter === 'day' && format(date, 'yyyy-MM-dd') !== selectedDate) return false;
       if (timeFilter === 'week' && !isThisWeek(date)) return false;
       if (timeFilter === 'month' && !isThisMonth(date)) return false;
       if (timeFilter === 'year' && !isThisYear(date)) return false;
@@ -34,7 +41,7 @@ export function SLADashboard({ tickets, appSettings }: SLADashboardProps) {
 
       return true;
     });
-  }, [finishedTickets, timeFilter, selectedCategory]);
+  }, [finishedTickets, timeFilter, selectedDate, selectedCategory]);
 
   const totalFiltered = filteredTickets.length;
   const avgSlaSeconds = totalFiltered > 0 
@@ -71,7 +78,7 @@ export function SLADashboard({ tickets, appSettings }: SLADashboardProps) {
     const baseTickets = finishedTickets.filter(t => {
       const dateStr = t.finishedAt || t.createdAt;
       const date = new Date(dateStr);
-      if (timeFilter === 'day' && !isToday(date)) return false;
+      if (timeFilter === 'day' && format(date, 'yyyy-MM-dd') !== selectedDate) return false;
       if (timeFilter === 'week' && !isThisWeek(date)) return false;
       if (timeFilter === 'month' && !isThisMonth(date)) return false;
       if (timeFilter === 'year' && !isThisYear(date)) return false;
@@ -90,7 +97,7 @@ export function SLADashboard({ tickets, appSettings }: SLADashboardProps) {
       count: data[cat].count,
       avgMinutes: (data[cat].totalSeconds / data[cat].count) / 60,
     })).sort((a, b) => b.count - a.count);
-  }, [finishedTickets, timeFilter]);
+  }, [finishedTickets, timeFilter, selectedDate]);
 
 
   const [timelineFilter, setTimelineFilter] = useState<'week' | 'month' | 'quarter' | 'all'>('month');
@@ -243,45 +250,55 @@ export function SLADashboard({ tickets, appSettings }: SLADashboardProps) {
           <span className="text-sm font-bold text-slate-700">Filtros:</span>
         </div>
         
-        <div className="flex bg-slate-100 p-1 rounded-lg">
-          <button 
-            onClick={() => setTimeFilter('day')} 
-            className={cn("px-4 py-1.5 text-xs font-bold rounded-md transition-colors", timeFilter === 'day' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
-          >
-            Dia
-          </button>
-          <button 
-            onClick={() => setTimeFilter('week')} 
-            className={cn("px-4 py-1.5 text-xs font-bold rounded-md transition-colors", timeFilter === 'week' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
-          >
-            Semana
-          </button>
-          <button 
-            onClick={() => setTimeFilter('month')} 
-            className={cn("px-4 py-1.5 text-xs font-bold rounded-md transition-colors", timeFilter === 'month' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
-          >
-            Mês
-          </button>
-          <button 
-            onClick={() => setTimeFilter('year')} 
-            className={cn("px-4 py-1.5 text-xs font-bold rounded-md transition-colors", timeFilter === 'year' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
-          >
-            Ano
-          </button>
-          <button 
-            onClick={() => setTimeFilter('all')} 
-            className={cn("px-4 py-1.5 text-xs font-bold rounded-md transition-colors", timeFilter === 'all' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
-          >
-            Todos
-          </button>
+        <div className="flex items-center gap-2">
+          {timeFilter === 'day' && (
+            <input 
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="bg-white border border-slate-200 text-slate-700 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-2 py-1.5 outline-none font-medium h-[32px]"
+            />
+          )}
+          <div className="flex bg-slate-100 p-1 rounded-lg">
+            <button 
+              onClick={() => setTimeFilter('day')} 
+              className={cn("px-4 py-1 text-xs font-bold rounded-md transition-colors", timeFilter === 'day' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+            >
+              Dia
+            </button>
+            <button 
+              onClick={() => setTimeFilter('week')} 
+              className={cn("px-4 py-1 text-xs font-bold rounded-md transition-colors", timeFilter === 'week' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+            >
+              Semana
+            </button>
+            <button 
+              onClick={() => setTimeFilter('month')} 
+              className={cn("px-4 py-1 text-xs font-bold rounded-md transition-colors", timeFilter === 'month' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+            >
+              Mês
+            </button>
+            <button 
+              onClick={() => setTimeFilter('year')} 
+              className={cn("px-4 py-1 text-xs font-bold rounded-md transition-colors", timeFilter === 'year' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+            >
+              Ano
+            </button>
+            <button 
+              onClick={() => setTimeFilter('all')} 
+              className={cn("px-4 py-1 text-xs font-bold rounded-md transition-colors", timeFilter === 'all' ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+            >
+              Todos
+            </button>
+          </div>
         </div>
 
-        <div className="h-6 w-px bg-slate-200"></div>
+        <div className="hidden sm:block h-6 w-px bg-slate-200"></div>
 
         <select 
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-3 py-2 outline-none font-medium"
+          className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-3 py-1.5 outline-none font-medium h-[36px]"
         >
           <option value="all">Todas Categorias</option>
           {appSettings.categories.map(cat => (

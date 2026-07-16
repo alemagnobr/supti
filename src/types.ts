@@ -131,5 +131,6 @@ export interface AppSettings {
   informations?: Information[];
   shortcuts?: Shortcut[];
   tools?: { id: string, name: string, url: string, description?: string }[];
+  defaultSlaTimeFilter?: 'day' | 'week' | 'month' | 'year' | 'all';
 }
 
